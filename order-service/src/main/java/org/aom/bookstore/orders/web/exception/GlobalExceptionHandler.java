@@ -1,5 +1,6 @@
 package org.aom.bookstore.orders.web.exception;
 
+import org.aom.bookstore.orders.domain.InvalidOrderException;
 import org.aom.bookstore.orders.domain.OrderNotFoundException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -62,16 +63,16 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-//    @ExceptionHandler(InvalidOrderException.class)
-//    ProblemDetail handleInvalidOrderException(InvalidOrderException e) {
-//        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
-//        problemDetail.setTitle("Invalid Order Creation Request");
-//        problemDetail.setType(BAD_REQUEST_TYPE);
-//        problemDetail.setProperty("service", SERVICE_NAME);
-//        problemDetail.setProperty("error_category", "Generic");
-//        problemDetail.setProperty("timestamp", Instant.now());
-//        return problemDetail;
-//    }
+    @ExceptionHandler(InvalidOrderException.class)
+    ProblemDetail handleInvalidOrderException(InvalidOrderException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle("Invalid Order Creation Request");
+        problemDetail.setType(BAD_REQUEST_TYPE);
+        problemDetail.setProperty("service", SERVICE_NAME);
+        problemDetail.setProperty("error_category", "Generic");
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
 
 //    @Override
 //    @Nullable protected ResponseEntity<Object> handleMethodArgumentNotValid(
