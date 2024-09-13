@@ -22,6 +22,7 @@ public class OrderService {
     }
 
     public CreateOrderResponse createOrder(String userName, CreateOrderRequest request) {
+        log.info("OrderService::createOrder() was called");
         orderValidator.validate(request);
         OrderEntity newOrder = OrderMapper.convertToEntity(request);
         newOrder.setUserName(userName);

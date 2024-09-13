@@ -12,6 +12,7 @@ class CatalogServiceClientConfig {
     RestClient restClient(ApplicationProperties properties) {
         return RestClient.builder()
                 .baseUrl(properties.catalogServiceUrl())
+                .requestInterceptor(new RestClientInterceptor())
                 .build();
     }
 }
