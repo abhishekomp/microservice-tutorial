@@ -6,8 +6,11 @@ import org.aom.bookstore.orders.domain.model.OrderCreatedEvent;
 import org.aom.bookstore.orders.domain.model.OrderEventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -18,9 +21,12 @@ public class OrderEventService {
     private final OrderEventRepository orderEventRepository;
     private final ObjectMapper objectMapper;
 
-    OrderEventService(OrderEventRepository orderEventRepository, ObjectMapper objectMapper) {
+    private final OrderEventPublisher orderEventPublisher;
+
+    OrderEventService(OrderEventRepository orderEventRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher) {
         this.orderEventRepository = orderEventRepository;
         this.objectMapper = objectMapper;
+        this.orderEventPublisher = orderEventPublisher;
     }
 
     void save(OrderCreatedEvent event) {
@@ -38,6 +44,37 @@ public class OrderEventService {
     private String toJsonPayload(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void publishOrderEvents() {
+        Sort createdAt = Sort.by("createdAt").ascending();
+        List<OrderEventEntity> events = orderEventRepository.findAll(createdAt);
+        log.info("Found {} Order Events to be published", events.size());
+        for(OrderEventEntity event : events){
+            this.publish(event);
+            orderEventRepository.delete(event);
+        }
+        log.info("Published {} events", events.size());
+    }
+
+    private void publish(OrderEventEntity event) {
+        OrderEventType eventType = event.getEventType();
+        switch (eventType){
+            case ORDER_CREATED:
+                OrderCreatedEvent orderCreatedEvent = fromJsonPayload(event.getPayload(), OrderCreatedEvent.class);
+                orderEventPublisher.publish(orderCreatedEvent);
+                break;
+            default:
+                log.warn("Unsupported OrderEventType: {}", eventType);
+        }
+    }
+
+    private <T> T fromJsonPayload(String payload, Class<T> type) {
+        try {
+            return objectMapper.readValue(payload, type);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
