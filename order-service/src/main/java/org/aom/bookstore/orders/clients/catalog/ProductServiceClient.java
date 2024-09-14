@@ -28,7 +28,7 @@ public class ProductServiceClient {
                     .body(Product.class);
             return Optional.ofNullable(product);
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             log.error("Exception while calling catalog-service: {}", e.getCause().getMessage());
             log.error("Exception while calling catalog-service: {}", e.getMessage());
             log.error("Error fetching product with code: {}", code);

@@ -57,13 +57,31 @@ public abstract class AbstractIT {
                         .withStatus(200)
                         .withBody(
                                 """
-                    {
-                        "code": "%s",
-                        "name": "%s",
-                        "price": %s
-                    }
-                """
+                                            {
+                                                "code": "%s",
+                                                "name": "%s",
+                                                "price": %s
+                                            }
+                                        """
                                         .formatted(code, name, (price.doubleValue())))));
+    }
+
+        protected static void mockGetProductByCodeWithPathVariable(String code, String name, BigDecimal price) {
+            System.out.println("Wiremock stub was invoked with code for path variable: " + code);
+            stubFor(get(urlPathTemplate("/api/products/{code}"))
+                    .withPathParam("code", equalTo("P100"))
+                    .willReturn(aResponse()
+                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                            .withStatus(200)
+                            .withBody(
+                                    """
+                        {
+                            "code": "%s",
+                            "name": "%s",
+                            "price": %s
+                        }
+                    """
+                                            .formatted(code, name, price.doubleValue()))));
 
 //        stubFor(get(urlPathTemplate("/api/products/{code}"))
 //                .withPathParam("code", equalTo("P100"))
