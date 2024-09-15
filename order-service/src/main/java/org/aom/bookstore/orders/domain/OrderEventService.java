@@ -2,8 +2,7 @@ package org.aom.bookstore.orders.domain;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.aom.bookstore.orders.domain.model.OrderCreatedEvent;
-import org.aom.bookstore.orders.domain.model.OrderEventType;
+import org.aom.bookstore.orders.domain.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -17,10 +16,8 @@ import java.util.List;
 public class OrderEventService {
 
     private static final Logger log = LoggerFactory.getLogger(OrderEventService.class);
-
     private final OrderEventRepository orderEventRepository;
     private final ObjectMapper objectMapper;
-
     private final OrderEventPublisher orderEventPublisher;
 
     OrderEventService(OrderEventRepository orderEventRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher) {
@@ -30,7 +27,7 @@ public class OrderEventService {
     }
 
     void save(OrderCreatedEvent event) {
-        log.info("OrderEventService::save() was invoked");
+        log.info("OrderEventService::save() was invoked for OrderCreatedEvent");
         OrderEventEntity orderEvent = new OrderEventEntity();
         orderEvent.setEventId(event.eventId());
         orderEvent.setEventType(OrderEventType.ORDER_CREATED);
@@ -39,6 +36,40 @@ public class OrderEventService {
         orderEvent.setPayload(toJsonPayload(event));
         this.orderEventRepository.save(orderEvent);
         log.info("Created an event for OrderCreatedEvent with id={}", orderEvent.getId());
+    }
+
+    void save(OrderDeliveredEvent event) {
+        log.info("OrderEventService::save() was invoked for OrderDeliveredEvent");
+        OrderEventEntity orderEvent = new OrderEventEntity();
+        orderEvent.setEventId(event.eventId());
+        orderEvent.setEventType(OrderEventType.ORDER_DELIVERED);
+        orderEvent.setOrderNumber(event.orderNumber());
+        orderEvent.setCreatedAt(event.createdAt());
+        orderEvent.setPayload(toJsonPayload(event));
+        this.orderEventRepository.save(orderEvent);
+        log.info("Created an event for OrderDeliveredEvent with id={}", orderEvent.getId());
+    }
+
+    void save(OrderCancelledEvent event) {
+        OrderEventEntity orderEvent = new OrderEventEntity();
+        orderEvent.setEventId(event.eventId());
+        orderEvent.setEventType(OrderEventType.ORDER_CANCELLED);
+        orderEvent.setOrderNumber(event.orderNumber());
+        orderEvent.setCreatedAt(event.createdAt());
+        orderEvent.setPayload(toJsonPayload(event));
+        this.orderEventRepository.save(orderEvent);
+        log.info("Created an event for OrderCancelledEvent with id={}", orderEvent.getId());
+    }
+
+    void save(OrderErrorEvent event) {
+        OrderEventEntity orderEvent = new OrderEventEntity();
+        orderEvent.setEventId(event.eventId());
+        orderEvent.setEventType(OrderEventType.ORDER_PROCESSING_FAILED);
+        orderEvent.setOrderNumber(event.orderNumber());
+        orderEvent.setCreatedAt(event.createdAt());
+        orderEvent.setPayload(toJsonPayload(event));
+        this.orderEventRepository.save(orderEvent);
+        log.info("Created an event for OrderErrorEvent with id={}", orderEvent.getId());
     }
 
     private String toJsonPayload(Object object) {

@@ -3,6 +3,7 @@ package org.aom.bookstore.orders.jobs;
 import org.aom.bookstore.orders.domain.OrderEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,9 @@ class OrderEventsPublishingJob {
 
     private final OrderEventService orderEventService;
 
+    @Value("${order-service.publishEvents}")
+    private boolean shouldPublishEvents;
+
     OrderEventsPublishingJob(OrderEventService orderEventService) {
         this.orderEventService = orderEventService;
     }
@@ -22,7 +26,12 @@ class OrderEventsPublishingJob {
     //@SchedulerLock(name = "publishOrderEvents")
     public void publishOrderEvents() {
         //LockAssert.assertLocked();
-        log.info("Publishing Order Events at {}", Instant.now());
-        orderEventService.publishOrderEvents();
+        if(shouldPublishEvents){
+            log.info("Publishing Order Events at {}", Instant.now());
+            orderEventService.publishOrderEvents();
+        } else {
+            log.info("Skipping Publishing Order Events due to application property value set to: {}", shouldPublishEvents);
+        }
+
     }
 }
