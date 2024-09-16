@@ -1,7 +1,9 @@
 package org.aom.bookstore.orders.domain;
 
 import org.aom.bookstore.orders.domain.model.OrderStatus;
+import org.aom.bookstore.orders.domain.model.OrderSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +22,21 @@ interface OrderRepository extends JpaRepository<OrderEntity, Long> {
         this.save(order);
     }
 
+    @Query(
+            """
+            select new org.aom.bookstore.orders.domain.model.OrderSummary(o.orderNumber, o.status)
+            from OrderEntity o 
+            where o.userName = :userName
+            """
+    )
+    List<OrderSummary> findByUserName(String userName);
+
+//    @Query(
+//            """
+//            select distinct o
+//            from OrderEntity o left join fetch o.items
+//            where o.userName = :userName and o.orderNumber = :orderNumber
+//            """
+//    )
+    Optional<OrderEntity> findByUserNameAndOrderNumber(String userName, String orderNumber);
 }

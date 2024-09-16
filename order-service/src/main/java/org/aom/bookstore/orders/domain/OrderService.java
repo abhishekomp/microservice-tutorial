@@ -1,15 +1,13 @@
 package org.aom.bookstore.orders.domain;
 
-import org.aom.bookstore.orders.domain.model.CreateOrderRequest;
-import org.aom.bookstore.orders.domain.model.CreateOrderResponse;
-import org.aom.bookstore.orders.domain.model.OrderCreatedEvent;
-import org.aom.bookstore.orders.domain.model.OrderStatus;
+import org.aom.bookstore.orders.domain.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -77,5 +75,16 @@ public class OrderService {
 
     private boolean canBeDelivered(OrderEntity order) {
         return DELIVERY_ALLOWED_COUNTRIES.contains(order.getDeliveryAddress().country().toUpperCase());
+    }
+
+    public List<OrderSummary> findOrders(String userName) {
+        List<OrderSummary> list = orderRepository.findByUserName(userName);
+        log.info("Fetched {} orders for user: {}", list.size(), userName);
+        return list;
+    }
+
+    public Optional<OrderDTO> findUserOrder(String userName, String orderNumber) {
+        return orderRepository.findByUserNameAndOrderNumber(userName, orderNumber)
+                .map(OrderMapper::convertToDTO);
     }
 }

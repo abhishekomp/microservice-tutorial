@@ -1,18 +1,25 @@
 package org.aom.bookstore.orders.web.controllers;
 
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.aom.bookstore.orders.AbstractIT;
+import org.aom.bookstore.orders.domain.model.OrderSummary;
 import org.aom.bookstore.orders.testdata.TestDataFactory;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.mockito.Mockito.verify;
 
+@Sql("/test-orders.sql")
 class OrderControllerIntegrationTest extends AbstractIT {
 
     @Nested
@@ -104,6 +111,49 @@ class OrderControllerIntegrationTest extends AbstractIT {
                     .post("/api/orders")
                     .then()
                     .statusCode(HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @Nested
+    class GetOrderTests {
+        @Test
+        void getAllOrdersForUser(){
+            List<OrderSummary> orders = given()
+                    .when()
+                    .get("/api/orders")
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(new TypeRef<>(){});
+
+            assertThat(orders).hasSize(2);
+        }
+
+        @Test
+        void getSingleOrdersForUser(){
+            String orderNumber = "order-123";
+            given()
+                    .when()
+                    .get("/api/orders/{orderNumber}", orderNumber)
+                    .then()
+                    .statusCode(200)
+                    .body("orderNumber", is(orderNumber))
+                    .body("items.size()", is(2));
+        }
+
+        @Test
+        void shouldReturnNotFoundWhenOrderNotExists() {
+            String orderNumber = "invalid_order_number";
+
+            given()
+                    .when()
+                    .get("/api/orders/{orderNumber}", orderNumber)
+                    .then()
+                    .statusCode(404)
+                    .body("status", Matchers.is(404))
+                    .body("title", Matchers.is("Order Not Found"))
+                    .body("detail", Matchers.is("Order with Number " + orderNumber + " not found"));
         }
     }
 }
