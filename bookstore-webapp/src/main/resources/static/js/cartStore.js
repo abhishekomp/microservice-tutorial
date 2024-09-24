@@ -27,6 +27,22 @@ const addProductToCart = function(product){
     updateCartItemCount();
 }
 
+const updateProductQuantity = function(code, quantity) {
+    let cart = getCart();
+    if(quantity < 1) {
+        cart.items = cart.items.filter(itemModel => itemModel.code !== code);
+    } else {
+        let cartItem = cart.items.find(itemModel => itemModel.code === code);
+        if (cartItem) {
+            cartItem.quantity = parseInt(quantity);
+        } else {
+            console.log("Product code is not already in Cart, ignoring")
+        }
+    }
+    localStorage.setItem(BOOKSTORE_STATE_KEY, JSON.stringify(cart));
+    updateCartItemCount();
+}
+
 function updateCartItemCount() {
     let cart = getCart();
     let count = 0;
