@@ -9,9 +9,39 @@
 <body>
 <div layout:fragment="content">
     <div th:x-data="|initData('${pageNo}')|">
-        <h1>List of books displayed here</h1>
-        <h1>There are currently <span x-text="count">0</span> books in the bookstore</h1>
-        <h1>Displaying page number <span x-text="pageNo">0</span></h1>
+        <div th:replace="~{fragments/pagination :: pagination}"> </div>
+        <div class="row row-cols-1 row-cols-md-5">
+            <template x-for="product in products.data">
+                <div class="col mb-3">
+                    <div class="card h-100 product">
+
+                        <img :src="product.imageUrl"
+                             class="card-img-top"
+                             height="300" width="200"
+                        />
+
+                        <div class="card-body">
+                            <h5 class="card-title"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                x-text="product.name">product.name</h5>
+                            <p class="card-text"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               x-text="'Price: $'+product.price"
+                            >product.price</p>
+                        </div>
+                        <div class="card-footer" style="background: transparent; border-top: 0;">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" @click="addToCart(product)">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
     </div>
 </div>
 <div layout:fragment="pageScripts">
