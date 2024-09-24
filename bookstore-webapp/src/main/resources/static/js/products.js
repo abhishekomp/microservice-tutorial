@@ -7,14 +7,17 @@ document.addEventListener('alpine:init', () => {
             },
             init() {
                 this.count = 25;
-                console.log("Page No:", this.pageNo)
+                console.log("Page No:", this.pageNo);
                 this.loadProducts(this.pageNo);
             },
             loadProducts(pageNo) {
                $.getJSON("http://localhost:8989/catalog/api/products?page="+pageNo, (resp)=> {
-                      console.log("Products Resp:", resp)
+                      console.log("Products Resp:", resp);
                       this.products = resp;
                });
+            },
+            addToCart(product) {
+                addProductToCart(product);
             }
         }))
 });
