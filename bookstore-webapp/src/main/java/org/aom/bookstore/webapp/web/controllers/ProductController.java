@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 class ProductController {
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
-    //private final CatalogServiceClient catalogService;
-
 
     @GetMapping
     String index() {
