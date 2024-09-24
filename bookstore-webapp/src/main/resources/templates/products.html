@@ -8,9 +8,10 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div th:x-data="|initData()|">
+    <div th:x-data="|initData('${pageNo}')|">
         <h1>List of books displayed here</h1>
         <h1>There are currently <span x-text="count">0</span> books in the bookstore</h1>
+        <h1>Displaying page number <span x-text="pageNo">0</span></h1>
     </div>
 </div>
 <div layout:fragment="pageScripts">

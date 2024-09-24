@@ -3,7 +3,9 @@ package org.aom.bookstore.webapp.web.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 class ProductController {
@@ -15,7 +17,8 @@ class ProductController {
     }
 
     @GetMapping("/products")
-    String showProductsPage() {
+    String showProductsPage(@RequestParam(name = "page", defaultValue = "1") int page, Model model) {
+        model.addAttribute("pageNo", page);
         return "products";
     }
 
